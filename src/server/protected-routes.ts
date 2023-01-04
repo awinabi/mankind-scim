@@ -1,5 +1,5 @@
 import { SwaggerRouter } from "koa-swagger-decorator";
-import { user } from "./controller";
+import { user } from "../controllers";
 
 const protectedRouter = new SwaggerRouter();
 
@@ -11,11 +11,12 @@ protectedRouter.put("/users/:id", user.updateUser);
 protectedRouter.delete("/users/:id", user.deleteUser);
 protectedRouter.delete("/testusers", user.deleteTestUsers);
 
-// Swagger endpoint
+// Swagger endpoint, at http://localhost:3000/swagger-html
 protectedRouter.swagger({
-    title: "node-typescript-koa-rest",
-    description: "API REST using NodeJS and KOA framework, typescript. TypeORM for SQL with class-validators. Middlewares JWT, CORS, Winston Logger.",
-    version: "1.8.0"
+    title: "mankind-scim",
+    description: "SCIM Implementation",
+    version: "0.0.1",
+    prefix: "scim/v2"
 });
 
 // mapDir will scan the input dir, and automatically call router.map to all Router Class

@@ -1,10 +1,11 @@
 import { Context } from "koa";
-import { getManager, Repository, Not, Equal, Like } from "typeorm";
+import { Repository, Not, Equal, Like } from "typeorm";
 import { validate, ValidationError } from "class-validator";
 import { request, summary, path, body, responsesAll, tagsAll } from "koa-swagger-decorator";
-import { User, userSchema } from "../entity/user";
+import { User, userSchema } from "../data-access/relational/user";
+import { MankindDataSource } from "../data-source";
 
-@responsesAll({ 200: { description: "success"}, 400: { description: "bad request"}, 401: { description: "unauthorized, missing/wrong jwt token"}})
+@responsesAll({ 200: { description: "success" }, 400: { description: "bad request" }, 401: { description: "unauthorized, missing/wrong jwt token" } })
 @tagsAll(["User"])
 export default class UserController {
 
@@ -13,7 +14,7 @@ export default class UserController {
     public static async getUsers(ctx: Context): Promise<void> {
 
         // get a user repository to perform operations with user
-        const userRepository: Repository<User> = getManager().getRepository(User);
+        const userRepository: Repository<User> = MankindDataSource.getRepository(User);
 
         // load all users
         const users: User[] = await userRepository.find();
@@ -31,10 +32,10 @@ export default class UserController {
     public static async getUser(ctx: Context): Promise<void> {
 
         // get a user repository to perform operations with user
-        const userRepository: Repository<User> = getManager().getRepository(User);
+        const userRepository: Repository<User> = MankindDataSource.getRepository(User);
 
         // load user by id
-        const user: User | undefined = await userRepository.findOne(+ctx.params.id || 0);
+        const user: User | undefined = await userRepository.findOneBy({ id: +ctx.params.id || 0 });
 
         if (user) {
             // return OK status code and loaded user object
@@ -54,7 +55,7 @@ export default class UserController {
     public static async createUser(ctx: Context): Promise<void> {
 
         // get a user repository to perform operations with user
-        const userRepository: Repository<User> = getManager().getRepository(User);
+        const userRepository: Repository<User> = MankindDataSource.getRepository(User);
 
         // build up entity user to be saved
         const userToBeSaved: User = new User();
@@ -68,7 +69,7 @@ export default class UserController {
             // return BAD REQUEST status code and errors array
             ctx.status = 400;
             ctx.body = errors;
-        } else if (await userRepository.findOne({ email: userToBeSaved.email })) {
+        } else if (await userRepository.findOneBy({ email: userToBeSaved.email })) {
             // return BAD REQUEST status code and email already exists error
             ctx.status = 400;
             ctx.body = "The specified e-mail address already exists";
@@ -90,7 +91,7 @@ export default class UserController {
     public static async updateUser(ctx: Context): Promise<void> {
 
         // get a user repository to perform operations with user
-        const userRepository: Repository<User> = getManager().getRepository(User);
+        const userRepository: Repository<User> = MankindDataSource.getRepository(User);
 
         // update the user by specified id
         // build up entity user to be updated
@@ -106,12 +107,12 @@ export default class UserController {
             // return BAD REQUEST status code and errors array
             ctx.status = 400;
             ctx.body = errors;
-        } else if (!await userRepository.findOne(userToBeUpdated.id)) {
+        } else if (!await userRepository.findOneBy({ id: userToBeUpdated.id })) {
             // check if a user with the specified id exists
             // return a BAD REQUEST status code and error message
             ctx.status = 400;
             ctx.body = "The user you are trying to update doesn't exist in the db";
-        } else if (await userRepository.findOne({ id: Not(Equal(userToBeUpdated.id)), email: userToBeUpdated.email })) {
+        } else if (await userRepository.findOneBy({ id: Not(Equal(userToBeUpdated.id)), email: userToBeUpdated.email })) {
             // return BAD REQUEST status code and email already exists error
             ctx.status = 400;
             ctx.body = "The specified e-mail address already exists";
@@ -133,10 +134,10 @@ export default class UserController {
     public static async deleteUser(ctx: Context): Promise<void> {
 
         // get a user repository to perform operations with user
-        const userRepository = getManager().getRepository(User);
+        const userRepository = MankindDataSource.getRepository(User);
 
         // find the user by specified id
-        const userToRemove: User | undefined = await userRepository.findOne(+ctx.params.id || 0);
+        const userToRemove: User | undefined = await userRepository.findOneBy({ id: +ctx.params.id || 0 });
         if (!userToRemove) {
             // return a BAD REQUEST status code and error message
             ctx.status = 400;
@@ -160,10 +161,10 @@ export default class UserController {
     public static async deleteTestUsers(ctx: Context): Promise<void> {
 
         // get a user repository to perform operations with user
-        const userRepository = getManager().getRepository(User);
+        const userRepository = MankindDataSource.getRepository(User);
 
         // find test users
-        const usersToRemove: User[] = await userRepository.find({ where: { email: Like("%@citest.com")} });
+        const usersToRemove: User[] = await userRepository.find({ where: { email: Like("%@citest.com") } });
 
         // the user is there so can be removed
         await userRepository.remove(usersToRemove);

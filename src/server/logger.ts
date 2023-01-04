@@ -1,9 +1,9 @@
 import { Context } from "koa";
-import { config } from "./config";
+import { config } from "../config";
 import { transports, format } from "winston";
 import * as path from "path";
 
-const logger = (winstonInstance: any): any  => {
+const logger = (winstonInstance: any): any => {
     winstonInstance.configure({
         level: config.debugLogging ? "debug" : "info",
         transports: [
@@ -22,14 +22,14 @@ const logger = (winstonInstance: any): any  => {
     });
 
     return async (ctx: Context, next: () => Promise<any>): Promise<void> => {
-        
+
         const start = new Date().getTime();
         try {
             await next();
-          } catch (err) {
+        } catch (err) {
             ctx.status = err.status || 500;
             ctx.body = err.message;
-          }
+        }
         const ms = new Date().getTime() - start;
 
         let logLevel: string;

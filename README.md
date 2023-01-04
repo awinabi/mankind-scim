@@ -1,34 +1,5 @@
 # SCIM Implementation
 
-## Pre-reqs
-
-To build and run this app locally you will need:
-
-- Install [Node.js](https://nodejs.org/en/)
-
-## Features:
-
-- Nodemon - server auto-restarts when code changes
-- Koa v2
-- TypeORM (SQL DB) with basic CRUD included
-- Swagger decorator (auto generated swagger docs)
-- Class-validator - Decorator based entities validation
-- Docker-compose ready to go
-- Postman (newman) integration tests
-- Locust load tests
-- Jest unit tests
-- Github actions - CI for building and testing the project
-- Cron jobs prepared
-
-## Included middleware:
-
-- @koa/router
-- koa-bodyparser
-- Winston Logger
-- JWT auth koa-jwt
-- Helmet (security headers)
-- CORS
-
 ## Getting Started
 
 - Clone the repository

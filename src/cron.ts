@@ -1,8 +1,7 @@
 import { CronJob } from "cron";
-import { config } from "./config";
+import { TestTask } from "./tasks/test.task";
 
-const cron = new CronJob(config.cronJobExpression, () => {
-    console.log("Executing cron job once every hour");
+export const TestCron = new CronJob("0 * * * *", () => {
+    new TestTask().execute();
 });
 
-export { cron };
